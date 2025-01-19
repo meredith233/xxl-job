@@ -782,7 +782,7 @@ XXL-JOB是一个分布式任务调度平台，其核心设计目标是开发迅�
     - 686、广州博依特智能信息科技有限公司
     - 687、河南宠呦呦信息技术有限公司
     - 688、陕西星邑空间技术有限公司
-
+    - 689、广东西欧克实业有限公司
     - ……
 
 > 更多接入的公司，欢迎在 [登记地址](https://github.com/xuxueli/xxl-job/issues/1 ) 登记，登记仅仅为了产品推广。
@@ -1035,7 +1035,7 @@ public XxlJobSpringExecutor xxlJobExecutor() {
 
 
 #### 步骤二：“GLUE模式(Java)” 任务开发：
-请点击任务右侧 “GLUE” 按钮，进入 “GLUE编辑器开发界面” ，见下图。“GLUE模式(Java)” 运行模式的任务默认已经初始化了示例任务代码，即打印Hello World。
+请点击任务右侧 “GLUE IDE” 按钮，进入 “GLUE编辑器开发界面” ，见下图。“GLUE模式(Java)” 运行模式的任务默认已经初始化了示例任务代码，即打印Hello World。
 （ “GLUE模式(Java)” 运行模式的任务实际上是一段继承自IJobHandler的Java类代码，它在执行器项目中运行，可使用@Resource/@Autowire注入执行器里中的其他服务，详细介绍请查看第三章节）
 
 ![输入图片说明](https://www.xuxueli.com/doc/static/xxl-job/images/img_Fgql.png "在这里输入图片标题")
@@ -1172,13 +1172,14 @@ public void demoJobHandler() throws Exception {
 - demoJobHandler：简单示例任务，任务内部模拟耗时任务逻辑，用户可在线体验Rolling Log等功能；
 - shardingJobHandler：分片示例任务，任务内部模拟处理分片参数，可参考熟悉分片任务；
 - httpJobHandler：通用HTTP任务Handler；业务方只需要提供HTTP链接等信息即可，不限制语言、平台。示例任务入参如下：
-    ```
-    url: http://www.xxx.com
-    method: get 或 post
-    data: post-data
-    ```
-- commandJobHandler：通用命令行任务Handler；业务方只需要提供命令行即可；如 “pwd”命令；
-
+```
+{
+    "url": "http://www.baidu.com",
+    "method": "get",
+    "data": "hello world"
+}
+```
+- commandJobHandler：通用命令行任务Handler；业务方只需要提供命令行即可，命令及参数之间通过空格隔开；如任务参数 "ls la" 或 "pwd" 将会执行命令并输出数据；
 
 ### 3.3 GLUE模式(Java)
 任务以源码方式维护在调度中心，支持通过Web IDE在线更新，实时编译和生效，因此不需要指定JobHandler。开发流程如下：
@@ -1258,7 +1259,7 @@ public void demoJobHandler() throws Exception {
     注册方式：调度中心获取执行器地址的方式；
         自动注册：执行器自动进行执行器注册，调度中心通过底层注册表可以动态发现执行器机器地址；
         手动录入：人工手动录入执行器的地址信息，多地址逗号分隔，供调度中心使用；
-    机器地址："注册方式"为"手动录入"时有效，支持人工维护执行器的地址信息；
+    机器地址："注册方式"为"手动录入"时有效，支持人工维护执行器的地址信息；注册地址格式可参考“http://127.0.0.1:9999/”，为执行器内嵌服务地址；
 
 ### 4.2 新建任务
 进入任务管理界面，点击“新增任务”按钮，在弹出的“新增任务”界面配置任务属性后保存即可。详情页参考章节 "三、任务详解"。
@@ -1655,8 +1656,8 @@ docker run --name xxl-job-admin -p 8080:8080 -d xuxueli/xxl-job-admin
 针对上述情况，可以通过结合 "单机路由策略（如：第一台、一致性哈希）" + "阻塞策略（如：单机串行、丢弃后续调度）" 来规避，最终避免任务重复执行。
 
 ### 5.21 命令行任务
-原生提供通用命令行任务Handler（Bean任务，"CommandJobHandler"）；业务方只需要提供命令行即可；
-如任务参数 "pwd" 将会执行命令并输出数据；
+原生提供通用命令行任务Handler（Bean任务，"CommandJobHandler"）；业务方只需要提供命令行即可，命令及参数之间通过空格隔开；
+如任务参数 "ls la" 或 "pwd" 将会执行命令并输出数据；
 
 ### 5.22 日志自动清理
 XXL-JOB日志主要包含如下两部分，均支持日志自动清理，说明如下：
@@ -2418,7 +2419,7 @@ public void execute() {
 - 6、【修复】漏洞修复，包括 "CVE-2024-42681" 子任务越权漏洞修复、"CVE-2023-33779" 任务API越权问题修复；
 - 7、【升级】多个项目依赖升级至较新稳定版本，涉及netty、groovy、gson、springboot、mybatis等；
 
-### 7.36 版本 v2.5.0 Release Notes[2024-01-11]
+### 7.36 版本 v2.5.0 Release Notes[2025-01-11]
 - 1、【优化】框架基础守护线程异常处理逻辑优化，避免极端情况下因Error导致调度终止问题；
 - 2、【优化】底层通讯超时时间支持自定义，默认3秒，缓解网络抖动导致任务通讯超时问题；可参考 xxl-job-admin 和 samples 示例代码自行配置；
 - 3、【修复】调度中心快慢线程池优化拒绝策略，避免因默认AbortPolicy导致调度结果丢失问题；
@@ -2435,13 +2436,25 @@ public void execute() {
 - 14、【升级】多个项目依赖升级至较新稳定版本，涉及netty、slf4j、junit等；
 
 **备注：**
-- a、本次升级数据模型及通讯协议向前兼容，v2.4.*代码和系统可无缝升级；建议对比新旧版本数据库初始化脚本补充索引；
-- b、计划下个大版本升级 v3.0，将会基于 jdk17 与 springboot3.x 构建；版本v2.5.x将会继续维护，问题及漏洞将会及时跟进修复。 
+- a、本次升级数据模型及通讯协议向前兼容，v2.4.*代码和系统可无缝升级（该版本优化了“xxl_job_log”表索引，建议低版本参考调整）；
+- b、版本v2.5.x为基于jdk8的最后的大版本，将会长期持续维护，问题及漏洞将会及时跟进修复。
+- c、下个大版本（v3.0）将会基于 jdk17 与 springboot3.x 构建；
 
 ### 7.37 版本 v3.0.0 Release Notes[规划中]
-- 1、[规划中]调度中心升级 SpringBoot3 + JDK17；解决SpringBoot2.x老版本漏洞问题；
-- 2、[规划中]登陆态Token生成逻辑优化，混淆登陆时间属性，降低token泄漏风险；
-
+- 1、【升级】调度中心升级至 SpringBoot3 + JDK17；
+- 2、【升级】Docker镜像升级，镜像构建基于JDK17（openjdk:17-jdk-slim）；
+- 3、【优化】IP获取逻辑优化，优先遍历网卡来获取可用IP；
+- 4、【优化】通用命令行任务(“commandJobHandler”)优化，支持多参数执行，命令及参数之间通过空格隔开；如任务参数 "ls la" 或 "pwd" 将会执行命令并输出数据；
+- 5、【优化】通用HTTP任务（httpJobHandler）优化，任务参数格式调整为json格式；示例参数如下：
+```
+{
+    "url": "http://www.baidu.com",
+    "method": "get",
+    "data": "hello world"
+}
+```
+- 6、[规划中]登陆态Token生成逻辑优化，混淆登陆时间属性，降低token泄漏风险；
+- 7、[规划中]组件扫描改为BeanPostProcessor方式，避免小概率情况下提前初始化；底层组件移除单例写法，汇总factory统一管理；
 
 ### TODO LIST
 - 1、调度隔离：调度中心针对不同执行器，各自维护不同的调度和远程触发组件。
